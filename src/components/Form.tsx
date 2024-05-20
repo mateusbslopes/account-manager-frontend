@@ -1,8 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Button, Text, TextInput } from "react-native";
-import { AccountAlreadyExistsError, AccountError, ParentDoesntExistsError } from "../error";
-
-type AccountCode = Number[];
+import { AccountAlreadyExistsError, ParentDoesntExistsError } from "../error";
 
 type Account = {
     id: string
