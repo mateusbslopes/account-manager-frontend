@@ -1,11 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Button, Text, TextInput } from "react-native";
 
-type AccountCode = {
-    parent: number;
-    child: number;
-    grandchild: number;
-}
+type AccountCode = Number[];
 
 type Account = {
     id: string
@@ -18,56 +14,35 @@ const Form = (): JSX.Element => {
     const [suggestedCode, setSuggestedCode] = useState()
 
     const [accounts, setAccounts] = useState<Account[]>([])
-    const [accountCode, setAccountCode] = useState<AccountCode>({
-        parent: 0,
-        child: 0,
-        grandchild: 0
-    })
+    const [accountCode, setAccountCode] = useState<Number[]>([])
 
     const [touched, setTouched] = useState(false)
     const [error, setError] = useState("")
 
     // CHANGE EACH INDIVIDUAL TEST TO A LEGIBLE FUNCION (parentIsValid, successorIsValid)
-    const inputIsValid = (parent: string, child: string, grandchild: string, rest: string): boolean =>
-        Boolean(
-            (parent && !Number.isNaN(Number(parent)) && Number(parent) > 0 && Number(parent) <= 999) &&
-            (child == undefined || (child != "" && !Number.isNaN(Number(child)) && Number(child) > 0 && Number(child) <= 999)) &&
-            (grandchild == undefined || (grandchild != "" && !Number.isNaN(Number(grandchild)) && Number(grandchild) > 0 && Number(child) <= 999)) &&
-            (rest == undefined && rest != "")
-        )
+    const inputIsValid = (accountCode: number[]) =>
+        accountCode.reduce<boolean>((prevValue, accountCodePart) =>
+            Boolean(prevValue &&
+                !Number.isNaN(Number(accountCodePart)) &&
+                Number(accountCodePart) > 0
+                && Number(accountCodePart) <= 999), true)
+
+
 
     useEffect(() => {
-        const [parent, child, grandchild, rest] = code.split(".")
+        const accountCode = code.split(".").map(Number)
         setTouched(true)
-        if (!inputIsValid(parent, child, grandchild, rest) && touched) {
+
+        if (!inputIsValid(accountCode) && touched) {
             setError("Invalid input")
             return
         }
 
         setError("")
 
-        setAccountCode({
-            parent: Number(parent),
-            child: Number(child),
-            grandchild: Number(grandchild)
-        })
+        setAccountCode(accountCode)
     }, [code])
 
-    const addAccount = () => {
-        const realAccountCode = {
-            parent: --accountCode.parent,
-            child: --accountCode.child,
-            grandchild: --accountCode.grandchild
-        }
-
-        accounts[realAccountCode.parent] = {
-            id: `${realAccountCode.parent}`
-        }
-
-        console.log(accounts)
-
-        setAccounts([...accounts])
-    }
 
     const mapAccount = (acc: Account): any => (
         acc && [
@@ -81,7 +56,7 @@ const Form = (): JSX.Element => {
             <>
                 <Text>Conta</Text>
                 <TextInput onChangeText={setCode} style={{ borderColor: 'black', borderWidth: 3 }} />
-                <Button title="Add" onPress={addAccount} />
+                <Button title="Add" onPress={() => {}} />
             </>
             <>
                 <Text style={{ color: "red" }}>{error}</Text>
