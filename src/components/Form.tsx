@@ -27,6 +27,7 @@ const Form = (): JSX.Element => {
     const [touched, setTouched] = useState(false)
     const [error, setError] = useState("")
 
+    // CHANGE EACH INDIVIDUAL TEST TO A LEGIBLE FUNCION (parentIsValid, successorIsValid)
     const inputIsValid = (parent: string, child: string, grandchild: string, rest: string): boolean =>
         Boolean(
             (parent && !Number.isNaN(Number(parent)) && Number(parent) > 0 && Number(parent) <= 999) &&
@@ -70,7 +71,7 @@ const Form = (): JSX.Element => {
 
     const mapAccount = (acc: Account): any => (
         acc && [
-            <Text key={acc.id}>{acc.id}</Text>,
+            <Text key={acc.id}>{Number(acc.id) + 1}</Text>,
             acc.accounts?.map(mapAccount)
         ])
 
