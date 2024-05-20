@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { Button, Text, TextInput } from "react-native";
+import { AccountAlreadyExistsError, AccountError, ParentDoesntExistsError } from "../error";
 
 type AccountCode = Number[];
 
 type Account = {
     id: string
-    accounts?: Account[]
+    accounts: Account[]
 }
 
 const Form = (): JSX.Element => {
@@ -14,12 +15,11 @@ const Form = (): JSX.Element => {
     const [suggestedCode, setSuggestedCode] = useState()
 
     const [accounts, setAccounts] = useState<Account[]>([])
-    const [accountCode, setAccountCode] = useState<Number[]>([])
+    const [accountCode, setAccountCode] = useState<number[]>([])
 
     const [touched, setTouched] = useState(false)
     const [error, setError] = useState("")
 
-    // CHANGE EACH INDIVIDUAL TEST TO A LEGIBLE FUNCION (parentIsValid, successorIsValid)
     const inputIsValid = (accountCode: number[]) =>
         accountCode.reduce<boolean>((prevValue, accountCodePart) =>
             Boolean(prevValue &&
@@ -30,19 +30,72 @@ const Form = (): JSX.Element => {
 
 
     useEffect(() => {
-        const accountCode = code.split(".").map(Number)
+        let accountCode = code.split(".").map(Number)
         setTouched(true)
+        setError("")
 
         if (!inputIsValid(accountCode) && touched) {
             setError("Invalid input")
             return
         }
 
-        setError("")
-
+        accountCode = accountCode.map(code => code - 1)
         setAccountCode(accountCode)
     }, [code])
 
+    // Opposed to codeIsValid (see the pattern chage) this throws an error to be handled instead of a boolean since 
+    // its responsible to test and identify the specifity of the error and not only if its valid or not. 
+    const validateAccount = () => {
+        const accountCodeDepth = accountCode.length
+
+        // TODO merge both for loops
+        for (let i = 1, currAccounts: Account[] = accounts; i < accountCodeDepth - 1; i++) {
+            if (!currAccounts || (currAccounts && !currAccounts[accountCode[i]])) throw new ParentDoesntExistsError();
+            currAccounts = currAccounts[accountCode[i]].accounts
+        }
+        for (let i = 0, currAccounts: Account[] = accounts; i < accountCodeDepth; i++) {
+            if (i + 1 == accountCodeDepth)
+                if (currAccounts[accountCode[i]])
+                    throw new AccountAlreadyExistsError()
+                else break
+            else
+                currAccounts = currAccounts[accountCode[i]].accounts
+        }
+
+
+        /* TODO
+        Implement DataBase Full
+        eg input: 999.999
+        but 999.999.999 already exists
+        */
+    }
+
+    const insertAccount = () => {
+        validateAccount()
+        const accountCodeDepth = accountCode.length
+
+        for (let i = 0, currAccounts: Account[] | undefined = accounts;
+            i < accountCodeDepth;
+            i++
+        ) {
+            if (i == accountCodeDepth - 1) {
+                currAccounts[accountCode[i]] = {
+                    id: accountCode.join("."),
+                    accounts: []
+                }
+            } else currAccounts = currAccounts[accountCode[i]].accounts
+        }
+        setAccounts([...accounts])
+    }
+
+    const addAccount = () => {
+        try {
+            insertAccount()
+        } catch (err) {
+            if (err instanceof ParentDoesntExistsError) setError("Conta pai nao existe")
+            if (err instanceof AccountAlreadyExistsError) setError("Conta ja existe")
+        }
+    }
 
     const mapAccount = (acc: Account): any => (
         acc && [
@@ -56,7 +109,7 @@ const Form = (): JSX.Element => {
             <>
                 <Text>Conta</Text>
                 <TextInput onChangeText={setCode} style={{ borderColor: 'black', borderWidth: 3 }} />
-                <Button title="Add" onPress={() => {}} />
+                <Button title="Criar" onPress={addAccount} />
             </>
             <>
                 <Text style={{ color: "red" }}>{error}</Text>
