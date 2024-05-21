@@ -1,14 +1,14 @@
 import React, { useEffect, useState } from "react";
-import { Button, Text, TextInput } from "react-native";
+import { Button, Text, TextInput, View } from "react-native";
 import { AccountAlreadyExistsError, ParentDoesntExistsError } from "../error";
-import { Account } from "../../App";
+import { Account, colors, styles } from "../../App";
 
 type FormProps = {
     accounts: Account[]
     setAccounts: React.Dispatch<React.SetStateAction<Account[]>>
 }
 
-const Form = ({accounts, setAccounts}: FormProps): JSX.Element => {
+const Form = ({ accounts, setAccounts }: FormProps): JSX.Element => {
 
     const [code, setCode] = useState("")
     const [suggestedCode, setSuggestedCode] = useState("")
@@ -141,11 +141,11 @@ const Form = ({accounts, setAccounts}: FormProps): JSX.Element => {
             }
         }
     }
-        
+
     return (
-        <>
+        <View style={styles.container}>
             <>
-                <Text>Conta</Text>
+                <Text>Codigo da conta</Text>
                 <TextInput onChangeText={setCode} style={{ borderColor: 'black', borderWidth: 3 }} />
                 <Button title="Criar" onPress={addAccount} />
             </>
@@ -153,7 +153,7 @@ const Form = ({accounts, setAccounts}: FormProps): JSX.Element => {
                 {suggestedCode && (
                     <>
                         <Text>Gostaria de criar a conta:</Text>
-                        {/** Create button to fulfill input and create the account */ 
+                        {/** Create button to fulfill input and create the account */
                         }
                         <Text>
                             {suggestedCode.split(".").map(m => Number(m) + 1).join(".")}
@@ -163,7 +163,7 @@ const Form = ({accounts, setAccounts}: FormProps): JSX.Element => {
                 <Text style={{ color: "red" }}>{error}</Text>
                 <Text style={{ color: "green" }}>{confirmMessage}</Text>
             </>
-        </>
+        </View>
     )
 }
 

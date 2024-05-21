@@ -18,7 +18,7 @@ const List = ({ accounts, navigation }: ListProps) => {
 
     return (
         <>
-            <Button title="Criar Conta" onPress={() => {navigation.navigate("Formulario")}}/>
+            <Button title="Criar Conta" onPress={() => {navigation.navigate("Conta")}}/>
             {accounts.map(mapAccount)}
         </>
     )
