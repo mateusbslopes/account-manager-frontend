@@ -1,6 +1,6 @@
 import React from 'react'
-import { Account } from '../../App'
-import { Button, Text } from 'react-native'
+import { Account, colors, styles } from '../../App'
+import { Button, Text, View } from 'react-native'
 
 type ListProps = {
     accounts: Account[]
@@ -17,10 +17,15 @@ const List = ({ accounts, navigation }: ListProps) => {
     }
 
     return (
-        <>
-            <Button title="Criar Conta" onPress={() => {navigation.navigate("Conta")}}/>
-            {accounts.map(mapAccount)}
-        </>
+        <View style={styles.container}>
+            <View style={{ margin: colors.spacingStep * 3 }}>
+                <Button title="Criar Conta" onPress={() => { navigation.navigate("Conta") }} />
+            </View>
+            <View style={styles.card}>
+                <Text>Listagem</Text>
+                {accounts.map(mapAccount)}
+            </View>
+        </View>
     )
 }
 

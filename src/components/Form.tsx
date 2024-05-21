@@ -35,7 +35,7 @@ const Form = ({ accounts, setAccounts }: FormProps): JSX.Element => {
         setConfirmMessage("")
 
         if (!inputIsValid(accountCode) && touched) {
-            setError("Invalid input")
+            setError("Codigo Invalido")
             return
         }
 
@@ -143,7 +143,7 @@ const Form = ({ accounts, setAccounts }: FormProps): JSX.Element => {
     }
 
     return (
-        <View style={styles.container}>
+        <View style={styles.card}>
             <>
                 <Text>Codigo da conta</Text>
                 <TextInput onChangeText={setCode} style={{ borderColor: 'black', borderWidth: 3 }} />
