@@ -10,7 +10,7 @@ type Account = {
 const Form = (): JSX.Element => {
 
     const [code, setCode] = useState("")
-    const [suggestedCode, setSuggestedCode] = useState()
+    const [suggestedCode, setSuggestedCode] = useState("")
 
     const [accounts, setAccounts] = useState<Account[]>([])
     const [accountCode, setAccountCode] = useState<number[]>([])
@@ -39,7 +39,39 @@ const Form = (): JSX.Element => {
 
         accountCode = accountCode.map(code => code - 1)
         setAccountCode(accountCode)
+        console.log("accountCode", accountCode)
+        console.log("accounts", accounts)
+        
+        updateSuggestedCode()
     }, [code])
+
+    /* Manage stack (view is inverted)
+        Pop and add 1   Pop and add 1
+    0   |0              |0
+    3   |3              |3
+    5   |5              |6
+    999 |1000           |
+    999 
+    */
+    // When suggesting a code if the cliend presses 1.1 and the next available is 2.4 
+    // but 2 has another type suggest the next one?
+    const getSuggestedCode = (accounts: Account[], currDepth: number = 0, suggestedCodes: number[] = []): number[] => {
+        if (!accounts.length) return suggestedCodes;
+        suggestedCodes.push(accountCode[currDepth])
+
+        const childrenAccounts = accounts[accountCode[currDepth]]?.accounts
+        if (childrenAccounts?.length) {
+            suggestedCodes = getSuggestedCode(accounts[accountCode[currDepth]].accounts, currDepth + 1, suggestedCodes)
+        } 
+        return suggestedCodes
+    }
+
+    const updateSuggestedCode = () => {
+        setSuggestedCode("")
+        let suggestedCode = getSuggestedCode(accounts).map(code => code + 1).join(".")
+        console.log(suggestedCode)
+        setSuggestedCode(suggestedCode)
+    }
 
     // Opposed to codeIsValid (see the pattern chage) this throws an error to be handled instead of a boolean since 
     // its responsible to test and identify the specifity of the error and not only if its valid or not. 
@@ -97,10 +129,9 @@ const Form = (): JSX.Element => {
 
     const mapAccount = (acc: Account): any => (
         acc && [
-            <Text key={acc.id}>{Number(acc.id) + 1}</Text>,
+            <Text key={acc.id}>{Number(acc.id.split(".").map(i => Number(i) + 1).join("."))}</Text>,
             acc.accounts?.map(mapAccount)
         ])
-
 
     return (
         <>
@@ -110,6 +141,13 @@ const Form = (): JSX.Element => {
                 <Button title="Criar" onPress={addAccount} />
             </>
             <>
+                {suggestedCode && (
+                    <>
+                        <Text>Gostaria de criar a conta:</Text>
+                        <Button title={(Number(suggestedCode) + 1).toString()} onPress={() => { }} />
+                    </>
+                )}
+
                 <Text style={{ color: "red" }}>{error}</Text>
             </>
             <>{accounts.map(mapAccount)}</>
