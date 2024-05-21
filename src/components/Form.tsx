@@ -39,10 +39,7 @@ const Form = (): JSX.Element => {
 
         accountCode = accountCode.map(code => code - 1)
         setAccountCode(accountCode)
-        console.log("accountCode", accountCode)
-        console.log("accounts", accounts)
-        
-        updateSuggestedCode()
+        setSuggestedCode("")
     }, [code])
 
     /* Manage stack (view is inverted)
@@ -56,20 +53,28 @@ const Form = (): JSX.Element => {
     // When suggesting a code if the cliend presses 1.1 and the next available is 2.4 
     // but 2 has another type suggest the next one?
     const getSuggestedCode = (accounts: Account[], currDepth: number = 0, suggestedCodes: number[] = []): number[] => {
-        if (!accounts.length) return suggestedCodes;
-        suggestedCodes.push(accountCode[currDepth])
+        if (!accounts?.length) {
+            suggestedCodes.push(0)
+            return suggestedCodes
+        }
 
-        const childrenAccounts = accounts[accountCode[currDepth]]?.accounts
-        if (childrenAccounts?.length) {
-            suggestedCodes = getSuggestedCode(accounts[accountCode[currDepth]].accounts, currDepth + 1, suggestedCodes)
-        } 
+        if (currDepth === accountCode.length) {
+            suggestedCodes.push(accounts[accounts.length - 1].id.split(".").map(Number).at(-1) + 1)
+            return suggestedCodes
+        } else {
+            suggestedCodes.push(accountCode[currDepth])
+        }
+        let children = accounts[accountCode[currDepth]]?.accounts
+        let newSuggestedCodes = getSuggestedCode(children, currDepth + 1, suggestedCodes)
+        suggestedCodes.concat(newSuggestedCodes)
+
+        console.log(currDepth, suggestedCodes)
         return suggestedCodes
     }
 
     const updateSuggestedCode = () => {
         setSuggestedCode("")
-        let suggestedCode = getSuggestedCode(accounts).map(code => code + 1).join(".")
-        console.log(suggestedCode)
+        let suggestedCode = getSuggestedCode(accounts).join(".")
         setSuggestedCode(suggestedCode)
     }
 
@@ -123,7 +128,9 @@ const Form = (): JSX.Element => {
             insertAccount()
         } catch (err) {
             if (err instanceof ParentDoesntExistsError) setError("Conta pai nao existe")
-            if (err instanceof AccountAlreadyExistsError) setError("Conta ja existe")
+            if (err instanceof AccountAlreadyExistsError) {
+                updateSuggestedCode()
+            }
         }
     }
 
@@ -144,7 +151,7 @@ const Form = (): JSX.Element => {
                 {suggestedCode && (
                     <>
                         <Text>Gostaria de criar a conta:</Text>
-                        <Button title={(Number(suggestedCode) + 1).toString()} onPress={() => { }} />
+                        <Button title={suggestedCode.split(".").map(c => Number(c) + 1).toString()} onPress={() => { }} />
                     </>
                 )}
 
