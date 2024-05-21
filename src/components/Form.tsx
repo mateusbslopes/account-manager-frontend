@@ -1,18 +1,18 @@
 import React, { useEffect, useState } from "react";
 import { Button, Text, TextInput } from "react-native";
 import { AccountAlreadyExistsError, ParentDoesntExistsError } from "../error";
+import { Account } from "../../App";
 
-type Account = {
-    id: string
+type FormProps = {
     accounts: Account[]
+    setAccounts: React.Dispatch<React.SetStateAction<Account[]>>
 }
 
-const Form = (): JSX.Element => {
+const Form = ({accounts, setAccounts}: FormProps): JSX.Element => {
 
     const [code, setCode] = useState("")
     const [suggestedCode, setSuggestedCode] = useState("")
 
-    const [accounts, setAccounts] = useState<Account[]>([])
     const [accountCode, setAccountCode] = useState<number[]>([])
 
     const [touched, setTouched] = useState(false)
@@ -138,13 +138,6 @@ const Form = (): JSX.Element => {
             }
         }
     }
-
-    const mapAccount = (acc: Account): any => {
-        return acc ? [
-            <Text key={acc.id}>{acc.id.split(".").map(m => Number(m) + 1).join(".")}</Text>,
-            acc.accounts?.length ? acc.accounts?.map(mapAccount) : null
-        ]: null
-    }
         
     return (
         <>
@@ -160,15 +153,10 @@ const Form = (): JSX.Element => {
                         <Button title={suggestedCode.split(".").map(m => Number(m) + 1).join(".")} onPress={() => { }} />
                     </>
                 )}
-
                 <Text style={{ color: "red" }}>{error}</Text>
             </>
-            <>{accounts.map(mapAccount)}</>
         </>
     )
-
-
-
 }
 
 export default Form;
