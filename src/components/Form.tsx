@@ -17,6 +17,7 @@ const Form = ({accounts, setAccounts}: FormProps): JSX.Element => {
 
     const [touched, setTouched] = useState(false)
     const [error, setError] = useState("")
+    const [confirmMessage, setConfirmMessage] = useState("")
 
     const inputIsValid = (accountCode: number[]) =>
         accountCode.reduce<boolean>((prevValue, accountCodePart) =>
@@ -31,6 +32,7 @@ const Form = ({accounts, setAccounts}: FormProps): JSX.Element => {
         let accountCode = code.split(".").map(Number)
         setTouched(true)
         setError("")
+        setConfirmMessage("")
 
         if (!inputIsValid(accountCode) && touched) {
             setError("Invalid input")
@@ -131,6 +133,7 @@ const Form = ({accounts, setAccounts}: FormProps): JSX.Element => {
     const addAccount = () => {
         try {
             insertAccount()
+            setConfirmMessage(`Conta ${code} criada`)
         } catch (err) {
             if (err instanceof ParentDoesntExistsError) setError("Conta pai nao existe")
             if (err instanceof AccountAlreadyExistsError) {
@@ -150,10 +153,15 @@ const Form = ({accounts, setAccounts}: FormProps): JSX.Element => {
                 {suggestedCode && (
                     <>
                         <Text>Gostaria de criar a conta:</Text>
-                        <Button title={suggestedCode.split(".").map(m => Number(m) + 1).join(".")} onPress={() => { }} />
+                        {/** Create button to fulfill input and create the account */ 
+                        }
+                        <Text>
+                            {suggestedCode.split(".").map(m => Number(m) + 1).join(".")}
+                        </Text>
                     </>
                 )}
                 <Text style={{ color: "red" }}>{error}</Text>
+                <Text style={{ color: "green" }}>{confirmMessage}</Text>
             </>
         </>
     )
