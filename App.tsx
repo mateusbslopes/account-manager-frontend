@@ -10,6 +10,7 @@ const Stack = createNativeStackNavigator();
 // TODO create types file
 export type Account = {
   id: string
+  name: string
   accounts: Account[]
 }
 
@@ -76,7 +77,16 @@ export const styles = StyleSheet.create({
   },
   item: {
     backgroundColor: colors.white[0],
-    padding: colors.spacingStep * 4
+    padding: colors.spacingStep * 4,
+    flexDirection: 'row',
+    marginBottom: colors.spacingStep,
+    borderRadius: 20
+  },
+  input: { 
+    backgroundColor: colors.white[0],
+    borderWidth: 0,
+    borderRadius: 20,
+    padding: colors.spacingStep * 3
   }
 });
 export default App;

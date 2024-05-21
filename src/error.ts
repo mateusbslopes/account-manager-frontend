@@ -9,3 +9,7 @@ export class AccountAlreadyExistsError extends Error {
 export class DatabaseFullError extends Error {
     name = 'DATABASE_FULL'
 }
+
+export class NameIsInvalidError extends Error {
+    name = 'NAME_IS_INVALID'
+}

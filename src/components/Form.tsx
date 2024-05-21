@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Button, Text, TextInput, View } from "react-native";
-import { AccountAlreadyExistsError, ParentDoesntExistsError } from "../error";
+import { AccountAlreadyExistsError, NameIsInvalidError, ParentDoesntExistsError } from "../error";
 import { Account, colors, styles } from "../../App";
 
 type FormProps = {
@@ -11,31 +11,36 @@ type FormProps = {
 const Form = ({ accounts, setAccounts }: FormProps): JSX.Element => {
 
     const [code, setCode] = useState("")
+    const [codeError, setCodeError] = useState("")
+    const [codeTouched, setCodeTouched] = useState(false)
+
+    const [name, setName] = useState("")
+    const [nameError, setNameError] = useState("")
+    const [nameTouched, setNameTouched] = useState(false)
+
     const [suggestedCode, setSuggestedCode] = useState("")
 
     const [accountCode, setAccountCode] = useState<number[]>([])
 
-    const [touched, setTouched] = useState(false)
-    const [error, setError] = useState("")
     const [confirmMessage, setConfirmMessage] = useState("")
 
-    const inputIsValid = (accountCode: number[]) =>
+    const accountCodeIsValid = (accountCode: number[]) =>
         accountCode.reduce<boolean>((prevValue, accountCodePart) =>
             Boolean(prevValue &&
                 !Number.isNaN(Number(accountCodePart)) &&
                 Number(accountCodePart) > 0
                 && Number(accountCodePart) <= 999), true)
 
-
+    const nameIsValid = (name: string) => name.length
 
     useEffect(() => {
         let accountCode = code.split(".").map(Number)
-        setTouched(true)
-        setError("")
+        setCodeTouched(true)
+        setCodeError("")
         setConfirmMessage("")
 
-        if (!inputIsValid(accountCode) && touched) {
-            setError("Codigo Invalido")
+        if (!accountCodeIsValid(accountCode)) {
+            setCodeError("Codigo Invalido")
             return
         }
 
@@ -43,6 +48,13 @@ const Form = ({ accounts, setAccounts }: FormProps): JSX.Element => {
         setAccountCode(accountCode)
         setSuggestedCode("")
     }, [code])
+
+    useEffect(() => {
+        setNameTouched(true)
+        setNameError("")
+        if (!nameIsValid(name))
+            setNameError("Preencha um nome")
+    }, [name])
 
     /* Manage stack (view is inverted)
         Pop and add 1   Pop and add 1
@@ -112,8 +124,13 @@ const Form = ({ accounts, setAccounts }: FormProps): JSX.Element => {
         */
     }
 
+    const validateName = () => {
+        if(nameError) throw new NameIsInvalidError()
+    }
+
     const insertAccount = () => {
         validateAccount()
+        validateName()
         const accountCodeDepth = accountCode.length
 
         for (let i = 0, currAccounts: Account[] | undefined = accounts;
@@ -123,6 +140,7 @@ const Form = ({ accounts, setAccounts }: FormProps): JSX.Element => {
             if (i == accountCodeDepth - 1) {
                 currAccounts[accountCode[i]] = {
                     id: accountCode.join("."),
+                    name: name,
                     accounts: []
                 }
             } else currAccounts = currAccounts[accountCode[i]].accounts
@@ -132,10 +150,11 @@ const Form = ({ accounts, setAccounts }: FormProps): JSX.Element => {
 
     const addAccount = () => {
         try {
+            setConfirmMessage("")
             insertAccount()
             setConfirmMessage(`Conta ${code} criada`)
         } catch (err) {
-            if (err instanceof ParentDoesntExistsError) setError("Conta pai nao existe")
+            if (err instanceof ParentDoesntExistsError) setCodeError("Conta pai nao existe")
             if (err instanceof AccountAlreadyExistsError) {
                 updateSuggestedCode()
             }
@@ -145,22 +164,28 @@ const Form = ({ accounts, setAccounts }: FormProps): JSX.Element => {
     return (
         <View style={styles.card}>
             <>
-                <Text>Codigo da conta</Text>
-                <TextInput onChangeText={setCode} style={{ borderColor: 'black', borderWidth: 3 }} />
+                <>
+                    <Text>Codigo da conta</Text>
+                    <TextInput onChangeText={setCode} style={styles.input} />
+                    <Text style={{ color: "red" }}>{codeTouched && codeError}</Text>
+                </>
+                <>
+                    <Text>Nome</Text>
+                    <TextInput onChangeText={setName} style={styles.input} />
+                    <Text style={{ color: "red" }}>{nameTouched && nameError}</Text>
+                </>
                 <Button title="Criar" onPress={addAccount} />
             </>
             <>
                 {suggestedCode && (
                     <>
                         <Text>Gostaria de criar a conta:</Text>
-                        {/** Create button to fulfill input and create the account */
-                        }
+                        {/** Create button to fulfill input and create the account */}
                         <Text>
                             {suggestedCode.split(".").map(m => Number(m) + 1).join(".")}
                         </Text>
                     </>
                 )}
-                <Text style={{ color: "red" }}>{error}</Text>
                 <Text style={{ color: "green" }}>{confirmMessage}</Text>
             </>
         </View>

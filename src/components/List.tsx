@@ -7,7 +7,7 @@ type ListProps = {
     setAccounts: React.Dispatch<React.SetStateAction<Account[]>>
 }
 
-const List = ({ accounts, navigation }: ListProps) => {
+const List = ({ accounts }: ListProps) => {
 
     const mapAccount = (acc: Account): any => {
         return acc ? [
@@ -21,7 +21,7 @@ const List = ({ accounts, navigation }: ListProps) => {
     const renderAccounts = (item: Account): JSX.Element => (
         item && <View key={item.id}>
             <View style={styles.item}>
-                <Text>{formatId(item.id)}</Text>
+                <Text>{formatId(item.id)} - {item.name}</Text>
             </View>
             {item.accounts.map(renderAccounts)}
         </View>
@@ -34,7 +34,6 @@ const List = ({ accounts, navigation }: ListProps) => {
                 <FlatList
                     data={accounts}
                     renderItem={({ item }) => renderAccounts(item)}
-                    contentContainerStyle={{gap: colors.spacingStep}}
                 />
             </View>
         </View>
