@@ -66,6 +66,11 @@ const Form = (): JSX.Element => {
         }
         let children = accounts[accountCode[currDepth]]?.accounts
         let newSuggestedCodes = getSuggestedCode(children, currDepth + 1, suggestedCodes)
+        if(newSuggestedCodes.at(-1) === 999) {
+            newSuggestedCodes.pop()
+            newSuggestedCodes[newSuggestedCodes.length - 1] += 1
+        }
+            
         suggestedCodes.concat(newSuggestedCodes)
 
         return suggestedCodes
