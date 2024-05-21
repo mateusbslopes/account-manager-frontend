@@ -59,6 +59,7 @@ const Form = (): JSX.Element => {
         }
 
         if (currDepth === accountCode.length) {
+            // Create function for accounts[accounts.length - 1].id.split(".").map(Number).at(-1) + 1)
             suggestedCodes.push(accounts[accounts.length - 1].id.split(".").map(Number).at(-1) + 1)
             return suggestedCodes
         } else {
@@ -66,11 +67,11 @@ const Form = (): JSX.Element => {
         }
         let children = accounts[accountCode[currDepth]]?.accounts
         let newSuggestedCodes = getSuggestedCode(children, currDepth + 1, suggestedCodes)
-        if(newSuggestedCodes.at(-1) === 999) {
+        if (newSuggestedCodes.at(-1) === 999) {
             newSuggestedCodes.pop()
-            newSuggestedCodes[newSuggestedCodes.length - 1] += 1
+            newSuggestedCodes[newSuggestedCodes.length - 1] = accounts[accounts.length - 1].id.split(".").map(Number).at(-1) + 1
         }
-            
+
         suggestedCodes.concat(newSuggestedCodes)
 
         return suggestedCodes
@@ -138,12 +139,13 @@ const Form = (): JSX.Element => {
         }
     }
 
-    const mapAccount = (acc: Account): any => (
-        acc && [
-            <Text key={acc.id}>{Number(acc.id.split(".").map(i => Number(i) + 1).join("."))}</Text>,
-            acc.accounts?.map(mapAccount)
-        ])
-
+    const mapAccount = (acc: Account): any => {
+        return acc ? [
+            <Text key={acc.id}>{acc.id.split(".").map(m => Number(m) + 1).join(".")}</Text>,
+            acc.accounts?.length ? acc.accounts?.map(mapAccount) : null
+        ]: null
+    }
+        
     return (
         <>
             <>
@@ -155,7 +157,7 @@ const Form = (): JSX.Element => {
                 {suggestedCode && (
                     <>
                         <Text>Gostaria de criar a conta:</Text>
-                        <Button title={suggestedCode.split(".").map(c => Number(c) + 1).toString()} onPress={() => { }} />
+                        <Button title={suggestedCode.split(".").map(m => Number(m) + 1).join(".")} onPress={() => { }} />
                     </>
                 )}
 
