@@ -68,7 +68,6 @@ const Form = (): JSX.Element => {
         let newSuggestedCodes = getSuggestedCode(children, currDepth + 1, suggestedCodes)
         suggestedCodes.concat(newSuggestedCodes)
 
-        console.log(currDepth, suggestedCodes)
         return suggestedCodes
     }
 
