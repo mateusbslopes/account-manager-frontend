@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { StyleSheet } from 'react-native';
+import { Button, StyleSheet } from 'react-native';
 import Form from './src/components/Form';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
@@ -22,10 +22,20 @@ function App(): React.JSX.Element {
   return (
     <NavigationContainer>
       <Stack.Navigator initialRouteName="Lista">
-        <Stack.Screen name="Lista" options={{...screenStyle}}>
+        <Stack.Screen name="Lista"
+          options={({ navigation }) => ({
+            headerRight: () => (
+              <Button
+                onPress={() => navigation.navigate("Conta")}
+                title="+"
+                color={colors.primary}
+              />
+            ),
+            ...screenStyle
+          })}>
           {(props) => <List {...props} accounts={accounts} setAccounts={setAccounts} />}
         </Stack.Screen>
-        <Stack.Screen name="Conta" options={{...screenStyle}}>
+        <Stack.Screen name="Conta" options={{ ...screenStyle }}>
           {(props) => <Form {...props} accounts={accounts} setAccounts={setAccounts} />}
         </Stack.Screen>
       </Stack.Navigator>
@@ -63,6 +73,10 @@ export const styles = StyleSheet.create({
     backgroundColor: colors.white[10],
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20
+  },
+  item: {
+    backgroundColor: colors.white[0],
+    padding: colors.spacingStep * 4
   }
 });
 export default App;

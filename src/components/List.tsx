@@ -1,6 +1,6 @@
 import React from 'react'
 import { Account, colors, styles } from '../../App'
-import { Button, Text, View } from 'react-native'
+import { Button, FlatList, Text, View } from 'react-native'
 
 type ListProps = {
     accounts: Account[]
@@ -16,14 +16,26 @@ const List = ({ accounts, navigation }: ListProps) => {
         ] : null
     }
 
+    const formatId = (id: string): string => id.split(".").map(m => Number(m) + 1).join(".")
+
+    const renderAccounts = (item: Account): JSX.Element => (
+        item && <View key={item.id}>
+            <View style={styles.item}>
+                <Text>{formatId(item.id)}</Text>
+            </View>
+            {item.accounts.map(renderAccounts)}
+        </View>
+    )
+
     return (
         <View style={styles.container}>
-            <View style={{ margin: colors.spacingStep * 3 }}>
-                <Button title="Criar Conta" onPress={() => { navigation.navigate("Conta") }} />
-            </View>
             <View style={styles.card}>
                 <Text>Listagem</Text>
-                {accounts.map(mapAccount)}
+                <FlatList
+                    data={accounts}
+                    renderItem={({ item }) => renderAccounts(item)}
+                    contentContainerStyle={{gap: colors.spacingStep}}
+                />
             </View>
         </View>
     )
